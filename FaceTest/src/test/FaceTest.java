@@ -1,79 +1,97 @@
 package test;
 
-import java.io.BufferedReader;
+import com.facepp.error.FaceppParseException;
+import com.facepp.http.HttpRequests;
+import com.facepp.http.PostParameters;
 
 import org.json.*;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.io.File;
 
 public class FaceTest {
 	
 	private String key="cd8a2008408740f834121baf9ed29a5e";
 	private String secret="PKchGqrVRZx1fHKJCzGIWNHW44iMYf8B";
-	private String primary_url = "https://apicn.faceplusplus.com/v2";
-	
-	public JSONObject createGroup(String groupName){
-		System.out.println("Entered createGroup");
-		String group_url = primary_url;
-	    String path = "/group/create?api_key="+key+"&api_secret="+secret;
-	    group_url += path+"&group_name="+groupName;
-	    return getApiResponse(group_url);
+	private HttpRequests httpRequests = null;
+	//Constructor
+	public FaceTest() {
+		super();
+		this.httpRequests = new HttpRequests(key,secret,true,false);
 	}
 	
-	//Person creator
-	public JSONObject createPerson(String groupName, String personName){
-		System.out.println("Entered createPerson");
-		String person_url = primary_url;
-		String path = "/person/create?api_key="+key+"&api_secret="+secret;
-		person_url += path+"&person_name="+personName+"&group_name="+groupName;
-		return getApiResponse(person_url);
-	}
-
-	private JSONObject getApiResponse(String hit_url) {
-		System.out.println("Entered getApiResponse");
-		JSONObject response = new JSONObject(); 
-		URL url;
+	//Detect a face
+	public JSONObject detectionDetect(String imgPath){
+		System.out.println("Entered detectionDetect");
+		JSONObject detectionResult = null;
 		try {
-	    	url = new URL(hit_url);
-		    HttpsURLConnection con = (HttpsURLConnection)url.openConnection();	 
-		    String responseString = streamToString(con);
-		    response = new JSONObject(responseString);
-	    } catch (MalformedURLException e) {
-	    	e.printStackTrace();
-	    } catch (IOException e) {
-		    e.printStackTrace();
-	    } catch (JSONException e) {
+			detectionResult = httpRequests.detectionDetect(new PostParameters().setImg(new File(imgPath)));
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response;
+		System.out.println("Exited detectionDetect");
+		return detectionResult;
 	}
 	
-	private String streamToString(HttpsURLConnection con){
-		System.out.println("Entered streamToString");
-		StringBuilder result  = new StringBuilder();
-		String input;
-		String responseString=null;
-		if(con!=null)
-		{	 
-		try {		   			
-		   BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		   while ((input = br.readLine()) != null)
-		   {
-		      result.append(input+"\n");
-		   }
-		   br.close();
-		   responseString = result.toString();
-		   
-		} catch (IOException e) {
-		   //e.printStackTrace();
-		   return "{ error : Error}";
+	//Create a person
+	public JSONObject personCreate(String personName, String tag, String imgPath){
+		System.out.println("Entered personCreate");
+		JSONObject detectionResult = detectionDetect(imgPath);
+		JSONObject personCreateResult = new JSONObject();
+		try {
+			personCreateResult = httpRequests.personCreate(new PostParameters().setPersonName(personName).setTag(tag));
+			String faceId = detectionResult.getJSONArray("face").getJSONObject(0).getString("face_id");
+			httpRequests.personAddFace(new PostParameters().setPersonName(personName).setFaceId(faceId));
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	  }
-		return responseString; 
-   }
+		System.out.println("Exited personCreate");
+		return personCreateResult;
+	}
+	
+	//Add person to group
+	public JSONObject groupAddPerson(String groupName, String personName){
+		System.out.println("Entered groupAddPerson");
+		JSONObject groupAddPerson =  new JSONObject();
+		try {
+			groupAddPerson = httpRequests.groupAddPerson(new PostParameters().setGroupName(groupName).setPersonName(personName));
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return groupAddPerson;
+	}
+	
+	public JSONObject trainIdentify(String groupName){
+		System.out.println("Entered trainIdentify");
+		JSONObject trainIdentifyResult = new JSONObject();
+		try {
+			JSONObject syncResult = httpRequests.trainIdentify(new PostParameters().setGroupName(groupName));
+			trainIdentifyResult = httpRequests.getSessionSync(syncResult.getString("session_id"));
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Exited trainIdentify");
+		return trainIdentifyResult;
+	}
+	
+	public JSONObject recognitionIdentify(String groupName, String imgPath){
+		System.out.println("Entered recognitionIdentify");
+		JSONObject recognitionIdentifyResult = new JSONObject();
+		try {
+			recognitionIdentifyResult = httpRequests.recognitionIdentify(new PostParameters().setGroupName(groupName).setImg(new File(imgPath)));
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return recognitionIdentifyResult;
+	}
 }
