@@ -7,8 +7,8 @@ import org.json.JSONObject;
 
 public class TheCaller {
 	
-	private static String welcomeMessage = "WELCOME!!\nWhat do you want to do?\n\n0.Exit\n1.Create a person\n2.Add a face to Test group\n"
-			+ "3.Train the test group\n4.Identify a person from Test group\n5.Delete a person";
+	private static String welcomeMessage = "WELCOME!!\nWhat do you want to do?\n\n0.Exit\n1.Create a person\n2.Add a face to a person\n3.Add a person to Test group\n"
+			+ "4.Train the test group\n5.Identify a person from Test group\n6.Delete a person";
 	private static String choice;
 	private static String personName;
 	private static String tag;
@@ -36,16 +36,23 @@ public class TheCaller {
 			break;
 			
 		case 2:
+			personName = JOptionPane.showInputDialog("Enter name of the person");
+			imgPath = JOptionPane.showInputDialog("Enter path of the image of the person");
+			result = faceTest.personAddFace(personName, imgPath);
+			System.out.println(result);
+			break;
+			
+		case 3:
 			personName = JOptionPane.showInputDialog("Enter person name");
 			result = faceTest.groupAddPerson("Test", personName);
 			System.out.println(result);
 			break;
 			
-		case 3:
+		case 4:
 			System.out.println(faceTest.trainIdentify("Test"));
 			break;
 			
-		case 4:
+		case 5:
 			imgPath = JOptionPane.showInputDialog("Enter path of the image of the person");
 			result = faceTest.recognitionIdentify("Test", imgPath);
 			try {
@@ -56,7 +63,7 @@ public class TheCaller {
 			}
 			break;
 		
-		case 5:
+		case 6:
 			personName = JOptionPane.showInputDialog("Enter person's name");
 			result = faceTest.personDelete(personName);
 			System.out.println(result);

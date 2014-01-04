@@ -63,6 +63,7 @@ public class FaceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Exited groupAddPerson");
 		return groupAddPerson;
 	}
 	
@@ -92,10 +93,12 @@ public class FaceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Exited recognitionIdentify");
 		return recognitionIdentifyResult;
 	}
 	
 	public JSONObject personDelete(String personName){
+		System.out.println("Entered personDelete");
 		JSONObject personDeleteResult = new JSONObject();
 		try {
 			personDeleteResult = httpRequests.personDelete(new PostParameters().setPersonName(personName));
@@ -103,6 +106,25 @@ public class FaceTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Exited personDelete");
 		return personDeleteResult;
+	}
+	
+	public JSONObject personAddFace(String personName, String imgPath){
+		System.out.println("Entered personAddFace");
+		JSONObject detectionResult = detectionDetect(imgPath);
+		JSONObject personAddFaceResult = new JSONObject();
+		try {
+			String faceId = detectionResult.getJSONArray("face").getJSONObject(0).getString("face_id");
+			personAddFaceResult = httpRequests.personAddFace(new PostParameters().setPersonName(personName).setFaceId(faceId));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Exited personAddFace");
+		return personAddFaceResult;
 	}
 }
