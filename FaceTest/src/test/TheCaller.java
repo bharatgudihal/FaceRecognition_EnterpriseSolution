@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class TheCaller {
 	
 	private static String welcomeMessage = "WELCOME!!\nWhat do you want to do?\n\n0.Exit\n1.Create a person\n2.Add a face to Test group\n"
-			+ "3.Train the test group\n4.Identify a person from Test group";
+			+ "3.Train the test group\n4.Identify a person from Test group\n5.Delete a person";
 	private static String choice;
 	private static String personName;
 	private static String tag;
@@ -54,6 +54,12 @@ public class TheCaller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			break;
+		
+		case 5:
+			personName = JOptionPane.showInputDialog("Enter person's name");
+			result = faceTest.personDelete(personName);
+			System.out.println(result);
 			break;
 			
 		case 0:

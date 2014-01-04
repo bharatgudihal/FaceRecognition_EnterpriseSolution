@@ -94,4 +94,15 @@ public class FaceTest {
 		}
 		return recognitionIdentifyResult;
 	}
+	
+	public JSONObject personDelete(String personName){
+		JSONObject personDeleteResult = new JSONObject();
+		try {
+			personDeleteResult = httpRequests.personDelete(new PostParameters().setPersonName(personName));
+		} catch (FaceppParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return personDeleteResult;
+	}
 }
